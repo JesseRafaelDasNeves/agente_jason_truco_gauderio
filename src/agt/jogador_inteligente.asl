@@ -94,6 +94,50 @@ maiorCarta(RETORNO) :- (
 	)	
 ).
 
+codigoVezMao(RETORNO) :- (
+	I = 0
+	&
+	COUNT = 0
+	&
+	.print(RETORNO)
+	&
+	cartaMao(VALOR,NAIPE)
+	&
+	.print(VALOR, " --------------- ", NAIPE)
+	&
+	.print("Index = ", I, " - count", COUNT)
+	&
+	RETORNO = (COUNT + 1)
+	&
+	I = (I + 1)
+	&
+	I < 3
+).
+
+qtdeCartas(carta(_,_),RETORNO) :- (
+	RETORNO = 1
+	&
+	.print("Mais uma",RETORNO)
+).
+
+qtdeCartas(_,RETORNO) :- (
+	RETORNO = 0
+	&
+	.print("Acabou ",RETORNO)
+).
+
+qtdeCartas(RETORNO) :- (
+	RETORNO = 0
+	&
+	qtdeCartas(cartaMao(_,_),R2)
+	&
+	RETORNO = RETORNO + R2
+	&
+	false
+	&
+	.print("Somatório ",RETORNO)
+).
+
 /*
 horaDePedirTruco() :- (*/
 	/* Regra pera pedir truco
@@ -117,6 +161,8 @@ horaDePedirTruco() :- (*/
 +suavez : not cartaVez(_,_)
 	<-
 	.wait(1000);
+	?qtdeCartas(R);
+	.print("Qtde cartas = ", R);
 	.print("minha vez");
 	?maiorCarta(carta(VALOR,NAIPE));
 	.print("carta(", VALOR, ",", NAIPE, ")");
