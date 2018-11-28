@@ -1,0 +1,18 @@
+mas agente_jason_truco_gauderio {
+
+    agent jubileu : jogador_inteligente.asl {
+    	join: mesa
+    	focus: art_mesa
+    }
+    
+     agent juca : jogador.asl {
+    	join: mesa
+    	focus: art_mesa
+    }
+    
+     workspace mesa { 
+    	artifact art_mesa: artefato.MesaTeste()
+    }
+
+}
+
