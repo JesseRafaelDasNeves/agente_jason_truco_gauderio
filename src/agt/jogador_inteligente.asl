@@ -18,6 +18,10 @@ forcaCarta(7,espada,12).
 forcaCarta(7,paus,13).
 forcaCarta(7,espada,14).
 
+
+qtdeCarta(0).
+
+
 melhorCartaParaJogar(carta(VALOR,NAIPE),MINHA_JOGADA) :- (
 	forcaCarta(VALOR,NAIPE,FORCA_CARTA_VEZ)
 	&
@@ -94,48 +98,33 @@ maiorCarta(RETORNO) :- (
 	)	
 ).
 
-codigoVezMao(RETORNO) :- (
-	I = 0
+codigoVez(RETORNO) :- (
+	(
+		qtdeCarta(R)
+		&
+		.print("qtd - codigo vez = ",R)
+		
+	)
 	&
-	COUNT = 0
-	&
-	.print(RETORNO)
-	&
-	cartaMao(VALOR,NAIPE)
-	&
-	.print(VALOR, " --------------- ", NAIPE)
-	&
-	.print("Index = ", I, " - count", COUNT)
-	&
-	RETORNO = (COUNT + 1)
-	&
-	I = (I + 1)
-	&
-	I < 3
-).
-
-qtdeCartas(carta(_,_),RETORNO) :- (
-	RETORNO = 1
-	&
-	.print("Mais uma",RETORNO)
-).
-
-qtdeCartas(_,RETORNO) :- (
-	RETORNO = 0
-	&
-	.print("Acabou ",RETORNO)
-).
-
-qtdeCartas(RETORNO) :- (
-	RETORNO = 0
-	&
-	qtdeCartas(cartaMao(_,_),R2)
-	&
-	RETORNO = RETORNO + R2
-	&
-	false
-	&
-	.print("Somatório ",RETORNO)
+	(
+		(
+			R == 1
+			&
+			RETORNO = 3
+		)
+		|
+		(
+			R == 2
+			&
+			RETORNO = 2
+		)
+		|
+		(
+			R == 3
+			&
+			RETORNO = 1
+		)
+	)
 ).
 
 /*
@@ -150,38 +139,43 @@ horaDePedirTruco() :- (*/
 	/* A soma dos pontos prescisa ser ao menos 20 */
 /* ).*/
 
-!start.
+!inicia.
 
-+!start : true 
++!inicia : true 
 	<-
 	entrarNaPartida;
+//	+qtdeCarta(0);
 	.wait(1000);
-	.
+.
 
 +suavez : not cartaVez(_,_)
 	<-
 	.wait(1000);
-	?qtdeCartas(R);
-	.print("Qtde cartas = ", R);
-	.print("minha vez");
+	?codigoVez(V);
+	.print("### Vez",V," ### Minha vez ###");
 	?maiorCarta(carta(VALOR,NAIPE));
-	.print("carta(", VALOR, ",", NAIPE, ")");
-	-cartaMao(VALOR, NAIPE);
+	.print(">>>> Maior carta é carta(", VALOR, ",", NAIPE, ")");
+	?qtdeCarta(Q);
+	-+qtdeCarta(Q-1);
 	jogarCarta(VALOR, NAIPE);
 .
 
 +suavez : cartaVez(VALOR_VEZ,NIPE_VEZ)
 	<-
 	.wait(1000);
-	.print("minha vez ===== Carta Vez é ", VALOR_VEZ, " de ", NIPE_VEZ);
+	?codigoVez(V);
+	.print("### Vez",V," ### Minha vez ### Carta Vez é ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
 	?melhorCartaParaJogar(carta(VALOR_VEZ,NIPE_VEZ), carta(MELHOR_VALOR,MELHOR_NAIPE));
 	.print(">>>> Melhor carta é ", MELHOR_VALOR, " de ", MELHOR_NAIPE);
 	-cartaMao(MELHOR_VALOR, MELHOR_NAIPE);
+	?qtdeCarta(Q);
+	-+qtdeCarta(Q-1);
 	jogarCarta(MELHOR_VALOR,MELHOR_NAIPE);
 .
 	
 +receberCarta(NUM, NAIPE) : true
 	<-
+	-+qtdeCarta(3);
 	.print("Recebida a carta(", NUM, ",", NAIPE, ")");
 	+cartaMao(NUM , NAIPE);
 .
