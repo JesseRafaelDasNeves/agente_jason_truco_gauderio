@@ -21,6 +21,19 @@ forcaCarta(7,espada,14).
 
 qtdeCarta(0).
 
+juntar(AUX,RETORNO) :- (
+	cartaMao(X,Y)
+	& 
+	not .member(cartaMao(X,Y),AUX)
+	&
+	juntar([cartaMao(X,Y)|AUX], RETORNO)
+).
+
+juntar(AUX,RETORNO) :- (
+	.count(AUX,B)
+	&
+	juntar(AUX,AUX)
+).
 
 melhorCartaParaJogar(carta(VALOR,NAIPE),MINHA_JOGADA) :- (
 	forcaCarta(VALOR,NAIPE,FORCA_CARTA_VEZ)
@@ -127,13 +140,19 @@ codigoVez(RETORNO) :- (
 	)
 ).
 
-/*
-horaDePedirTruco() :- (*/
-	/* Regra pera pedir truco
+
+horaDePedirTruco(R) :- (
+	/* 
+	 * Regra pera pedir truco
 	 * -> Uma manilha
 	 * -> Uma carta maior que 12
 	 */
-/*).*/
+	 codigoVez(V)
+	 &
+	 cartaMao(VALOR,NAIPE)
+	 &
+	 forcaCarta(VALOR,NAIPE,FORCA)
+).
 
 /*pedirEnvido() :- (*/
 	/* A soma dos pontos prescisa ser ao menos 20 */
@@ -143,16 +162,17 @@ horaDePedirTruco() :- (*/
 
 +!inicia : true 
 	<-
-	entrarNaPartida;
-//	+qtdeCarta(0);
 	.wait(1000);
+	entrarNaPartida;
+    juntar(manilha(_,_), R);
+    .print("To Lista = ",R)
 .
 
 +suavez : not cartaVez(_,_)
 	<-
 	.wait(1000);
 	?codigoVez(V);
-	.print("### Vez",V," ### Minha vez ###");
+	.print("### Vez ",V," ### Minha vez ### Sem Carta Vez");
 	?maiorCarta(carta(VALOR,NAIPE));
 	.print(">>>> Maior carta é carta(", VALOR, ",", NAIPE, ")");
 	?qtdeCarta(Q);
@@ -164,7 +184,7 @@ horaDePedirTruco() :- (*/
 	<-
 	.wait(1000);
 	?codigoVez(V);
-	.print("### Vez",V," ### Minha vez ### Carta Vez é ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
+	.print("### Vez ",V," ### Minha vez ### Carta Vez é ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
 	?melhorCartaParaJogar(carta(VALOR_VEZ,NIPE_VEZ), carta(MELHOR_VALOR,MELHOR_NAIPE));
 	.print(">>>> Melhor carta é ", MELHOR_VALOR, " de ", MELHOR_NAIPE);
 	-cartaMao(MELHOR_VALOR, MELHOR_NAIPE);
