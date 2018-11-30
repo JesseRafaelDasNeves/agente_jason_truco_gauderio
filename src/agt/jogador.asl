@@ -26,7 +26,8 @@
 
 +truco : true
 	<-
-	.print("teste");
+	.print("Cai carta seu merda");
+	aceitar;
 	.
 	
 +dropAll:true

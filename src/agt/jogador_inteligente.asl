@@ -3,6 +3,10 @@ manilha(7,espada).
 manilha(1,paus).
 manilha(1,espada).
 
+forcaCarta(7,ouro,11).
+forcaCarta(7,espada,12).
+forcaCarta(1,paus,13).
+forcaCarta(1,espada,14).
 forcaCarta(4,_,1).
 forcaCarta(5,_,2).
 forcaCarta(6,_,3).
@@ -13,10 +17,6 @@ forcaCarta(12,_,7).
 forcaCarta(1,_,8).
 forcaCarta(2,_,9).
 forcaCarta(3,_,10).
-forcaCarta(7,ouro,11).
-forcaCarta(7,espada,12).
-forcaCarta(7,paus,13).
-forcaCarta(7,espada,14).
 
 qtdeCarta(0).
 
@@ -140,7 +140,7 @@ codigoVez(RETORNO) :- (
 	)
 ).
 
-cartaManilha(carta(VALOR,NAIPE), R) :- (
+cartaManilha(cartaMao(VALOR,NAIPE), R) :- (
 	(
 		not manilha(VALOR,NAIPE)
 		&
@@ -154,42 +154,137 @@ cartaManilha(carta(VALOR,NAIPE), R) :- (
 	)
 ).
 
+quantidadeManilha([],R) :- (
+	R = 0
+).
 quantidadeManilha([],QTD_ATUAL,R) :- (
 	R = QTD_ATUAL
 ).
 quantidadeManilha([CARTA|RESTO_CARTAS],QTD_ATUAL,R) :- (
 	(
-		cartaManilha(CARTA)
+		cartaManilha(CARTA, E_MAN)
 		&
-		QTD_ATUAL = (QTD_ATUAL + 1)
+		E_MAN == true
+		&
+		AUX = (QTD_ATUAL + 1)
+		&
+		quantidadeManilha(RESTO_CARTAS,AUX,R2)
+		&
+		R = R2
 	)
 	|
 	(
-		quantidadeManilha(RESTO_CARTAS,QTD_ATUAL,R2)
+		quantidadeManilha(RESTO_CARTAS,QTD_ATUAL,R3)
 		&
-		R = R2		
+		R = R3
 	)
 ).
-quantidadeManilha(R) :- (
-	todasCartasMao(LISTA_CARTA)
-	&
+quantidadeManilha(LISTA_CARTA,R) :- (
 	quantidadeManilha(LISTA_CARTA,0,R2)
 	&
 	R = R2
 ).
 
-horaDePedirTruco(R) :- (
-	/* 
-	 * Regra pera pedir truco
-	 * -> Uma manilha
-	 * -> Uma carta maior que 12
-	 */
-	 
-	 codigoVez(V)
-	 &
-	 cartaMao(VALOR,NAIPE)
-	 &
-	 forcaCarta(VALOR,NAIPE,FORCA)
+forcaMao([],FORCA_ATUAL,R) :- (
+	R = FORCA_ATUAL
+).
+forcaMao([cartaMao(VALOR,NAIPE)|RESTO_CARTAS],FORCA_ATUAL,R) :- (
+	forcaCarta(VALOR,NAIPE,FORCA)
+	&
+	AUX = (FORCA_ATUAL + FORCA)
+	&
+	forcaMao(RESTO_CARTAS,AUX,R2)
+	&
+	R = R2
+).
+forcaMao([],R) :- (
+	R = 0
+).
+forcaMao(LISTA_CARTA,R) :- (
+	forcaMao(LISTA_CARTA,0,R2)
+	&
+	R = R2
+).
+
+horaDePedirTruco([],R) :- (
+	R = false
+).
+horaDePedirTruco(LISTA_CARTAS,R) :- (
+	codigoVez(V)
+	&
+	.print("codigoVez",V)
+	&
+	quantidadeManilha(LISTA_CARTAS,QM)
+	&
+	.print("quantidadeManilha -> ",QM)
+	&
+	forcaMao(LISTA_CARTAS,FM)
+	&
+	.print("forcaMao -> ",FM)
+	&
+	(
+		(
+			V==3
+			&
+			(
+				(
+					QM == 1
+					&
+					R = true
+				)
+				|
+				(
+					FM >= 9
+					&
+					R = true
+				)
+				|
+				R = false	
+			)
+	 	)
+	 	|
+	 	(
+	 		V==2
+			&
+			(
+				(
+					QM >= 1
+					&
+					R = true
+				)
+				|
+				(
+					FM >= 16
+					&
+					R = true
+				)
+				|
+				R = false	
+			)
+	 	)
+	 	|
+	 	(
+	 		V==1
+			&
+			(
+				(
+					QM >= 2
+					&
+					R = true
+				)
+				|
+				(
+					FM >= 20
+					&
+					R = true
+				)
+				|
+				R = false	
+			)
+	 	)
+	 	|
+	 	R = false
+ 	)
 ).
 
 /*pedirEnvido() :- (*/
@@ -204,10 +299,13 @@ horaDePedirTruco(R) :- (
 	entrarNaPartida;
 .
 
-+suavez : not cartaVez(_,_)
++suavez : true
 	<-
 	.wait(1000);
-	
+	!oQueFazerNestaVez;
+.
+
++!oQueFazerNestaVez : not cartaVez(_,_) <-
 	?codigoVez(V);
 	.print("### Vez ",V," ### Minha vez ### Sem Carta Vez");
 	
@@ -217,8 +315,8 @@ horaDePedirTruco(R) :- (
 	?todasCartasMao([],R);
     .print("Cartas Mão -> ",R);
     
-    /*?quantidadeManilha(QM);
-    .print("Qtd manilha -> ",QM);*/
+    ?quantidadeManilha(R,QM);
+    .print("Qtd manilha -> ",QM);
 	
 	-cartaMao(VALOR, NAIPE);
 	?qtdeCarta(Q);
@@ -226,11 +324,28 @@ horaDePedirTruco(R) :- (
 	
 	jogarCarta(VALOR,NAIPE);
 .
-
-+suavez : cartaVez(VALOR_VEZ,NIPE_VEZ)
-	<-
-	.wait(1000);
++!oQueFazerNestaVez :   jaPediTruco(nao)
+						&
+						todasCartasMao([],LISTA_CARTA)
+						&
+						horaDePedirTruco(LISTA_CARTA,PEDE_TRUCO) <-
 	
+	?codigoVez(V);
+	.print("### Vez ",V," ### Minha vez ###");
+						
+	.print("Truuuuuucoooo");
+	
+	?maiorCarta(carta(VALOR,NAIPE));
+	.print(">>>> Maior carta é carta(", VALOR, ",", NAIPE, ")");
+	
+	?todasCartasMao([],R);
+    .print("Cartas Mão -> ",R);
+    
+	-+jaPediTruco(sim);
+	truco;
+.	
++!oQueFazerNestaVez : cartaVez(VALOR_VEZ,NIPE_VEZ)
+	<-
 	?codigoVez(V);
 	.print("### Vez ",V," ### Minha vez ### Carta Vez é ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
 	
@@ -240,8 +355,8 @@ horaDePedirTruco(R) :- (
     ?todasCartasMao([],R);
     .print("Cartas Mão -> ",R);
     
-    /*?quantidadeManilha(QM);
-    .print("Qtd manilha -> ",QM);*/
+    ?quantidadeManilha(R,QM);
+    .print("Qtd manilha -> ",QM);
 	
 	-cartaMao(MELHOR_VALOR, MELHOR_NAIPE);
 	?qtdeCarta(Q);
@@ -255,11 +370,12 @@ horaDePedirTruco(R) :- (
 	-+qtdeCarta(3);
 	.print("Recebida a carta(", NUM, ",", NAIPE, ")");
 	+cartaMao(NUM , NAIPE);
+	-+jaPediTruco(nao);
 .
 
 +truco : true
 	<-
-	.print("teste");
+	.print("Aceitou");
 	.
 	
 +dropAll:true

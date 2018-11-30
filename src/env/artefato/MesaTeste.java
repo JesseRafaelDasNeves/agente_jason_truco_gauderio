@@ -9,7 +9,7 @@ import jason.asSyntax.parser.ParseException;
 
 public class MesaTeste extends Artifact {
 	
-	private int[][] controlePartida = new int[4][2];
+private int[][] controlePartida = new int[4][2];
 	
 	private int jogadorVez = 0;
 	private AgentId[] jogadores = new AgentId[2];
@@ -21,7 +21,8 @@ public class MesaTeste extends Artifact {
 	private int jogadorMao = 1;
 	private int aposta = 0;
 	private int valorPartida = 6;
-	
+	private int jogadorAposta = -1;
+	private ObsProperty cartaVez = null;
 	
 	
 	void init()  {
@@ -34,10 +35,8 @@ public class MesaTeste extends Artifact {
 		rodada = 1;
 		jogadores[jogadorVez] = getCurrentOpAgentId();
 		if(jogadorVez == 1) {
-		//	System.out.println("Começou distribuição de cartas");
 			carregaBaralho();
 			distribuirCartas();
-			System.out.println("42 Mandou o " + jogadores[jogadorVez] + " jogar");
 			signal(jogadores[jogadorVez], "suavez");
 		} else {
 			jogadorVez++;
@@ -46,24 +45,18 @@ public class MesaTeste extends Artifact {
 	
 	@OPERATION
 	void jogarCarta(int num, String naipe) throws ParseException {
-		System.out.println("ARTEFATO: " + getCurrentOpAgentId().getAgentName() + ": carta(" + num + "," + naipe + ")");
 		boolean finalizouMao = false;
-		ObsProperty cartaVez = getObsProperty("cartaVez");
-		if(cartaVez == null) {
-			System.out.println("carta vez é null");
+		if(this.cartaVez == null) {
 			if(rodada == 1) {
 				pe = jogadorVez;
 			}
-			defineObsProperty("cartaVez", ASSyntax.parseNumber(String.valueOf(num)), ASSyntax.parseLiteral((String)naipe));
-			System.out.println(getCurrentOpAgentId().getAgentName() +  " definiu carta vez");
+		//	System.out.println("chamando inserir carta vez");
+			execInternalOp("inserirCartaVez", num, naipe);
 			atualizaJogadorVez();
-			System.out.println("59 Mandou o " + jogadores[jogadorVez] + " jogar");
 			signal(jogadores[jogadorVez], "suavez");
 		} else {
-			cartaVez = getObsProperty("cartaVez");
 			int num1 = Integer.parseInt(cartaVez.stringValue(0));
 			String naipe1 = cartaVez.stringValue(1);
-			System.out.println("Carta vez ARTEFATO: " + num1 + "," + naipe1);
 			int jogador = retornaJogadorMelhorCarta(num, (String) naipe, num1, naipe1);
 			
 			/* Se não empatar */
@@ -91,23 +84,19 @@ public class MesaTeste extends Artifact {
 				vencedorPrimeiraRodada = jogador;
 			}
 			if(!finalizouMao) {
+				System.out.println("Não finalizou mão");
 				rodada++;
 				try {
-					removeObsProperty(getObsProperty("cartaVez").getName());
-					System.out.println("drop carta vez");
-					signal(jogadores[0], "dropCartaVez");
-					signal(jogadores[1], "dropCartaVez");
+				//	System.out.println("Chamando remover carta vez");
+					execInternalOp("removerCartaVez");
 				}catch(Exception e) {
 					e.printStackTrace();
 				}
-				//removeObsProperty("cartaVez");
 				
 				if(jogador == 2) {
-					System.out.println("103 Mandou o " + jogadores[pe] + " jogar");
 					signal(jogadores[pe], "suavez");
 					jogadorVez = pe;
 				} else {
-					System.out.println("107 Mandou o " + jogadores[jogador] + " jogar");
 					signal(jogadores[jogador], "suavez");
 					jogadorVez = jogador;
 				}
@@ -118,8 +107,22 @@ public class MesaTeste extends Artifact {
 		}
 	}
 	
+	@INTERNAL_OPERATION void inserirCartaVez(int num, String naipe) throws ParseException {
+		//System.out.println("Inserindo carta vez: " + num + "," + naipe);
+		if(this.cartaVez==null) {
+			this.cartaVez=defineObsProperty("cartaVez", num, ASSyntax.parseLiteral(naipe));
+		}
+	}
+	
+	@INTERNAL_OPERATION void removerCartaVez() {
+		//System.out.println("Removendo carta Vez");
+		removeObsPropertyByTemplate(this.cartaVez.getName(),this.cartaVez.getValues());	
+		this.cartaVez = null;
+	}
+	
 	@OPERATION
 	void truco() {
+		jogadorAposta = jogadorVez;
 		aposta = 1;
 		atualizaJogadorVez();
 		signal(jogadores[jogadorVez], "truco");
@@ -127,6 +130,7 @@ public class MesaTeste extends Artifact {
 	
 	@OPERATION
 	void retruco() {
+		jogadorAposta = jogadorVez;
 		aposta = 2;
 		atualizaJogadorVez();
 		signal(jogadores[jogadorVez], "retruco");
@@ -134,6 +138,7 @@ public class MesaTeste extends Artifact {
 	
 	@OPERATION
 	void valeQuatro() {
+		jogadorAposta = jogadorVez;
 		aposta = 3;
 		atualizaJogadorVez();
 		signal(jogadores[jogadorVez], "vale4");
@@ -189,6 +194,8 @@ public class MesaTeste extends Artifact {
 		
 	@OPERATION
 	void aceitar() {
+		jogadorAposta = -1;
+		System.out.println("aposta: " + aposta);
 		switch (aposta) {
 		case 1:
 			/* Truco */
@@ -246,6 +253,7 @@ public class MesaTeste extends Artifact {
 	
 	@OPERATION
 	void recusar() {
+		System.out.println("aposta: " + aposta);
 		switch (aposta) {
 		case 1:
 			/* Truco */
@@ -343,6 +351,8 @@ public class MesaTeste extends Artifact {
 	}
 	
 	public void imprimirPlacar() {
+		System.out.println("Extra:" + jogadores[0].getAgentName() + ": " + controlePartida[3][0]);
+		System.out.println("Extra:" + jogadores[1].getAgentName() + ": " + controlePartida[3][1]);
 		System.out.println("Mão:" + jogadores[0].getAgentName() + ": " + controlePartida[1][0]);
 		System.out.println("Mão:" + jogadores[1].getAgentName() + ": " + controlePartida[1][1]);
 		System.out.println("Partida:" + jogadores[0].getAgentName() + ": " + controlePartida[0][0]);
@@ -374,16 +384,15 @@ public class MesaTeste extends Artifact {
 	private void finalizaMao() {
 		rodada = 1;
 		try {
-			removeObsProperty(getObsProperty("cartaVez").getName());
+			execInternalOp("removerCartaVez");
 			signal(jogadores[0], "dropAll");
 			signal(jogadores[1], "dropAll");
 		}catch(Exception e) {
-			System.out.println("Deu pau");
-			e.printStackTrace();
+			System.out.println("Não há carta da vez para remover");
 		}
 		boolean partidaFinalizada = false;
 		
-		if((controlePartida[1][0] > controlePartida[1][1] && aposta < 4)||(controlePartida[3][0] > controlePartida[3][1] && aposta > 3)) {
+		if((controlePartida[1][0] > controlePartida[1][1] && aposta < 4)||(controlePartida[3][0] > controlePartida[3][1] && aposta > 3) && jogadorAposta == -1) {
 			if(aposta > 0)
 				controlePartida[0][0] = controlePartida[0][0] + controlePartida[2][0];
 			else
@@ -392,17 +401,21 @@ public class MesaTeste extends Artifact {
 				System.out.println("O jogador " + jogadores[0].getAgentName() + " ganhou a partida.");
 				partidaFinalizada = true;
 			}
-		} else {
+		} else if(jogadorAposta == -1){
 			if(aposta > 0)
 				controlePartida[0][1] = controlePartida[0][0] + controlePartida[2][0];
 			else
 				controlePartida[0][1]++;
 			if(controlePartida[0][1] >= valorPartida) {
-				System.out.println("O jogador " + jogadores[0].getAgentName() + " ganhou a partida.");
 				partidaFinalizada = true;
 			}
 		}
-		
+		if(jogadorAposta != -1) {
+			controlePartida[0][jogadorAposta] = controlePartida[0][jogadorAposta] + controlePartida[2][jogadorAposta];
+			if(controlePartida[0][1] >= valorPartida) 
+				partidaFinalizada = true;
+		}
+			
 		
 		if(jogadorMao == 0)
 			jogadorMao = 1;
@@ -420,14 +433,9 @@ public class MesaTeste extends Artifact {
 				jogadorMao = 0;
 			else
 				jogadorMao = 1;
-			System.out.println("415 Mandou o " + jogadores[jogadorVez] + " jogar");
 			signal(jogadores[jogadorVez], "suavez");
+			System.out.println("Mão finalizada \n");
 		} else {
-			/*try {
-				removeObsProperty(getObsProperty("cartaVez").getName());
-			}catch(Exception e) {
-				e.printStackTrace();
-			}*/
 			System.out.println("Partida Finalizada");
 		}
 	}
@@ -438,6 +446,7 @@ public class MesaTeste extends Artifact {
 			controlePartida[2][i] = 0;
 		}
 		aposta = 0;
+		jogadorAposta = -1;
 	}
 	
 	private void atualizaJogadorVez() {
