@@ -397,6 +397,7 @@ private int[][] controlePartida = new int[4][2];
 		System.out.println("M�o:" + jogadores[1].getAgentName() + ": " + controlePartida[1][1]);
 		System.out.println("Partida:" + jogadores[0].getAgentName() + ": " + controlePartida[0][0]);
 		System.out.println("Partida:" + jogadores[1].getAgentName() + ": " + controlePartida[0][1]);
+		this.tela.atualizaPontosPartida(controlePartida[0][0], controlePartida[0][1]);
 		
 	}
 	
