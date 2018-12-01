@@ -2,10 +2,15 @@ package artefato;
 
 import java.util.Random;
 
-import FIPA.AgentID;
 import cartago.*;
+import artefato.Jogador;
+import artefato.Tela;
 import jason.asSyntax.ASSyntax;
 import jason.asSyntax.parser.ParseException;
+import jason.stdlib.foreach;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MesaTeste extends Artifact {
 	
@@ -23,10 +28,18 @@ private int[][] controlePartida = new int[4][2];
 	private int valorPartida = 6;
 	private int jogadorAposta = -1;
 	private ObsProperty cartaVez = null;
+        
+        //atributos da interface grÃ¡fica
+        private Tela tela;
+        private final int width = 900;
+        private final int height = 800;
+        private List<Jogador> jogadoresTela;
 	
 	
 	void init()  {
-		
+
+	       this.tela = new Tela(this.width, this.height);
+            this.jogadoresTela = new ArrayList<Jogador>();
 		
 	}
 
@@ -34,9 +47,13 @@ private int[][] controlePartida = new int[4][2];
 	void entrarNaPartida() throws ParseException {
 		rodada = 1;
 		jogadores[jogadorVez] = getCurrentOpAgentId();
+                Jogador jogadorTela = new Jogador("Jogador"+(jogadorVez+1), "jogador"+(jogadorVez+1), jogadores[jogadorVez]);
+                this.jogadoresTela.add(jogadorTela);
+                
 		if(jogadorVez == 1) {
 			carregaBaralho();
 			distribuirCartas();
+                        
 			signal(jogadores[jogadorVez], "suavez");
 		} else {
 			jogadorVez++;
@@ -59,7 +76,7 @@ private int[][] controlePartida = new int[4][2];
 			String naipe1 = cartaVez.stringValue(1);
 			int jogador = retornaJogadorMelhorCarta(num, (String) naipe, num1, naipe1);
 			
-			/* Se não empatar */
+			/* Se nï¿½o empatar */
 			if(jogador != 2)
 				controlePartida[1][jogador]++;
 			if(rodada > 1) {
@@ -84,7 +101,7 @@ private int[][] controlePartida = new int[4][2];
 				vencedorPrimeiraRodada = jogador;
 			}
 			if(!finalizouMao) {
-				System.out.println("Não finalizou mão");
+				System.out.println("Nï¿½o finalizou mï¿½o");
 				rodada++;
 				try {
 				//	System.out.println("Chamando remover carta vez");
@@ -102,20 +119,43 @@ private int[][] controlePartida = new int[4][2];
 				}
 			}
 			imprimirPlacar();
+			
 			System.out.println("Rodada finalizada \n");
 			
 		}
+		int jogadorVezAux = 0;
+		if(jogadorVez == 0)
+			jogadorVezAux = 1;
+		else 
+			jogadorVezAux = 0;
+		this.tela.removeImagemCarta(this.jogadoresTela.get(jogadorVezAux), this.getPos(num,naipe));
 	}
 	
+	private int getPos(int num, String naipe) {
+		int jogadorVezAux = 0;
+		if(jogadorVez == 0)
+			jogadorVezAux = 1;
+		else 
+			jogadorVezAux = 0;
+		for (int i = 0; i <  this.jogadoresTela.get(jogadorVezAux).getMao().size(); i++) {
+			if(this.jogadoresTela.get(jogadorVezAux).getMao().get(i).equalsIgnoreCase(num+naipe)) {
+				return i;
+			}
+	}
+		return -1;
+	}
+
 	@INTERNAL_OPERATION void inserirCartaVez(int num, String naipe) throws ParseException {
 		//System.out.println("Inserindo carta vez: " + num + "," + naipe);
 		if(this.cartaVez==null) {
+			this.tela.addImagemCartaVez(num+naipe);
 			this.cartaVez=defineObsProperty("cartaVez", num, ASSyntax.parseLiteral(naipe));
 		}
 	}
 	
 	@INTERNAL_OPERATION void removerCartaVez() {
 		//System.out.println("Removendo carta Vez");
+		this.tela.removeImagemCartaVez();
 		removeObsPropertyByTemplate(this.cartaVez.getName(),this.cartaVez.getValues());	
 		this.cartaVez = null;
 	}
@@ -218,7 +258,7 @@ private int[][] controlePartida = new int[4][2];
 			incrementarPontosExtras(5);
 			break;
 		case 6:
-			/* Real Envido após Envido*/
+			/* Real Envido apï¿½s Envido*/
 			incrementarPontosExtras(5);
 			break;
 		case 7:
@@ -226,7 +266,7 @@ private int[][] controlePartida = new int[4][2];
 			incrementarPontosExtras(retornaPontuacaoFaltante());
 			break;
 		case 8:
-			/* Falta Envido após Real Envido */
+			/* Falta Envido apï¿½s Real Envido */
 			incrementarPontosExtras(retornaPontuacaoFaltante());
 			break;
 		case 9:
@@ -283,7 +323,7 @@ private int[][] controlePartida = new int[4][2];
 			signal(jogadores[jogadorVez], "suavez");
 			break;
 		case 6:
-			/* Real Envido após Envido*/
+			/* Real Envido apï¿½s Envido*/
 			incrementarPontosExtras(2);
 			atualizaJogadorVez();
 			signal(jogadores[jogadorVez], "suavez");
@@ -295,7 +335,7 @@ private int[][] controlePartida = new int[4][2];
 			signal(jogadores[jogadorVez], "suavez");
 			break;
 		case 8:
-			/* Falta Envido após Real Envido */
+			/* Falta Envido apï¿½s Real Envido */
 			incrementarPontosExtras(5);
 			atualizaJogadorVez();
 			signal(jogadores[jogadorVez], "suavez");
@@ -353,15 +393,16 @@ private int[][] controlePartida = new int[4][2];
 	public void imprimirPlacar() {
 		System.out.println("Extra:" + jogadores[0].getAgentName() + ": " + controlePartida[3][0]);
 		System.out.println("Extra:" + jogadores[1].getAgentName() + ": " + controlePartida[3][1]);
-		System.out.println("Mão:" + jogadores[0].getAgentName() + ": " + controlePartida[1][0]);
-		System.out.println("Mão:" + jogadores[1].getAgentName() + ": " + controlePartida[1][1]);
+		System.out.println("Mï¿½o:" + jogadores[0].getAgentName() + ": " + controlePartida[1][0]);
+		System.out.println("Mï¿½o:" + jogadores[1].getAgentName() + ": " + controlePartida[1][1]);
 		System.out.println("Partida:" + jogadores[0].getAgentName() + ": " + controlePartida[0][0]);
 		System.out.println("Partida:" + jogadores[1].getAgentName() + ": " + controlePartida[0][1]);
 		
 	}
 	
 	public void distribuirCartas() {
-		
+		 this.jogadoresTela.get(0).drawAllCarta();
+		 this.jogadoresTela.get(1).drawAllCarta();
 		int[] cartas = this.sorteiaCartas();
 		for(int i = 0; i < cartas.length; i++) 
 			try {
@@ -370,15 +411,18 @@ private int[][] controlePartida = new int[4][2];
 					cartasMaos[i][0] = "0";
 					cartasMaos[i][1] = baralho[cartas[i]][0];
 					cartasMaos[i][2] = baralho[cartas[i]][1];
+                    this.jogadoresTela.get(0).addCarta(cartasMaos[i][1]+cartasMaos[i][2]);
 				} else {
 					signal(jogadores[1], "receberCarta", ASSyntax.parseNumber(baralho[cartas[i]][0]), ASSyntax.parseLiteral(baralho[cartas[i]][1]));
 					cartasMaos[i][0] = "1";
 					cartasMaos[i][1] = baralho[cartas[i]][0];
 					cartasMaos[i][2] = baralho[cartas[i]][1];
+                    this.jogadoresTela.get(1).addCarta(cartasMaos[i][1]+cartasMaos[i][2]);
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
+		montaTela();
 	}
 	
 	private void finalizaMao() {
@@ -388,7 +432,7 @@ private int[][] controlePartida = new int[4][2];
 			signal(jogadores[0], "dropAll");
 			signal(jogadores[1], "dropAll");
 		}catch(Exception e) {
-			System.out.println("Não há carta da vez para remover");
+			System.out.println("Nï¿½o hï¿½ carta da vez para remover");
 		}
 		boolean partidaFinalizada = false;
 		
@@ -434,7 +478,7 @@ private int[][] controlePartida = new int[4][2];
 			else
 				jogadorMao = 1;
 			signal(jogadores[jogadorVez], "suavez");
-			System.out.println("Mão finalizada \n");
+			System.out.println("Mï¿½o finalizada \n");
 		} else {
 			System.out.println("Partida Finalizada");
 		}
@@ -594,6 +638,10 @@ private int[][] controlePartida = new int[4][2];
 		baralho[39][0] = "4"; 
 		baralho[39][1] = "ouro";		
 	}
+
+    private void montaTela() {
+        this.tela.montaTela(this.jogadoresTela);
+    }
 
 	
 }

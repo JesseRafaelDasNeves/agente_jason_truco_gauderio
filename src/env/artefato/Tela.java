@@ -38,7 +38,7 @@ import javax.swing.JLabel;
 
 public class Tela extends JFrame {
 
-/*    private javax.swing.JLabel jogador1;
+   private javax.swing.JLabel jogador1;
     private javax.swing.JLabel carta1Jogador2;
     private javax.swing.JLabel carta2Jogador2;
     private javax.swing.JLabel carta3Jogador2;
@@ -61,41 +61,69 @@ public class Tela extends JFrame {
 
     private String EXTENSAO_IMG = ".png";
 
-    public Tela(List<Player> jogadores, int width, int height) {
+    public Tela(int width, int height) {
         init(width, height);
         this.setVisible(true);
-        montaTela(jogadores);
     }
 
-    public Tela(List<Player> jogadores) {
+    public Tela() {
         init(900, 800);
         this.setVisible(true);
-        montaTela(jogadores);
     }
 
-    public void addImagemCarta(Player jogador, Card carta, int pos) {
+    public void addImagemCarta(Jogador jogador, String carta, int pos) {
+     	System.out.println(carta);
         if (jogador.getAvatar().equalsIgnoreCase("jogador1")) {
             switch (pos) {
                 case 0:
-                    this.carta1Jogador1.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta.getCardValue().getSymbol() + carta.getSuit().getSymbol(), "" + carta.getCardValue().getValue() + carta.getSuit().getSymbol()));
+                    this.carta1Jogador1.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta, "" + carta));
                     break;
                 case 1:
-                    this.carta2Jogador1.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta.getCardValue().getSymbol() + carta.getSuit().getSymbol(), "" + carta.getCardValue().getValue() + carta.getSuit().getSymbol()));
+                    this.carta2Jogador1.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta, "" + carta));
                     break;
                 case 2:
-                    this.carta3Jogador1.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta.getCardValue().getSymbol() + carta.getSuit().getSymbol(), "" + carta.getCardValue().getValue() + carta.getSuit().getSymbol()));
+                    this.carta3Jogador1.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta, "" + carta));
                     break;
             }
         } else {
             switch (pos) {
                 case 0:
-                    this.carta1Jogador2.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta.getCardValue().getSymbol() + carta.getSuit().getSymbol(), "" + carta.getCardValue().getValue() + carta.getSuit().getSymbol()));
+                    this.carta1Jogador2.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta, "" + carta));
                     break;
                 case 1:
-                    this.carta2Jogador2.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta.getCardValue().getSymbol() + carta.getSuit().getSymbol(), "" + carta.getCardValue().getValue() + carta.getSuit().getSymbol()));
+                    this.carta2Jogador2.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta, "" + carta));
                     break;
                 case 2:
-                    this.carta3Jogador2.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta.getCardValue().getSymbol() + carta.getSuit().getSymbol(), "" + carta.getCardValue().getValue() + carta.getSuit().getSymbol()));
+                    this.carta3Jogador2.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta, "" + carta));
+                    break;
+            }
+        }
+        this.atualizaTela();
+    }
+    
+    public void removeImagemCarta(Jogador jogador, int pos) {
+        if (jogador.getAvatar().equalsIgnoreCase("jogador1")) {
+            switch (pos) {
+                case 0:
+                    this.carta1Jogador1.setIcon(null);
+                    break;
+                case 1:
+                    this.carta2Jogador1.setIcon(null);
+                    break;
+                case 2:
+                    this.carta3Jogador1.setIcon(null);
+                    break;
+            }
+        } else {
+            switch (pos) {
+                case 0:
+                    this.carta1Jogador2.setIcon(null);
+                    break;
+                case 1:
+                    this.carta2Jogador2.setIcon(null);
+                    break;
+                case 2:
+                    this.carta3Jogador2.setIcon(null);
                     break;
             }
         }
@@ -106,8 +134,13 @@ public class Tela extends JFrame {
         this.repaint();
     }
 
-    public void addImagemCartaVez(Card carta) {
-        this.cartaVez.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta.getCardValue().getSymbol() + carta.getSuit().getSymbol(), "" + carta.getCardValue().getValue() + carta.getSuit().getSymbol()));
+    public void addImagemCartaVez(String carta) {
+        this.cartaVez.setIcon(this.carregaIcone(91, 128, "img/carta/" + carta, "" + carta));
+        this.atualizaTela();
+    }
+    
+    public void removeImagemCartaVez() {
+        this.cartaVez.setIcon(null);
         this.atualizaTela();
     }
     
@@ -131,7 +164,8 @@ public class Tela extends JFrame {
                 .getScaledInstance(width, height, Image.SCALE_DEFAULT), caption);
     }
 
-    public void addImagemJogador(Player jogador) {
+    public void addImagemJogador(Jogador jogador) {
+   
         if (this.jogador1.getIcon() == null) {
             this.jogador1.setIcon(this.carregaIcone(64, 64, "img/avatar/jogador1", "Jogador1"));
         } else {
@@ -140,11 +174,11 @@ public class Tela extends JFrame {
         this.atualizaTela();
     }
 
-    public void montaTela(List<Player> jogadores) {
-        for (Player jogador : jogadores) {
+    public void montaTela(List<Jogador> jogadores) {
+        for (Jogador jogador : jogadores) {
             this.addImagemJogador(jogador);
-            for (int i = 0; i < jogador.getHand().size(); i++) {
-                this.addImagemCarta(jogador, jogador.getHand().get(i), i);
+            for (int i = 0; i < jogador.getMao().size(); i++) {
+                this.addImagemCarta(jogador, jogador.getMao().get(i), i);
             }
         }
         this.addBaralho();
@@ -318,6 +352,6 @@ public class Tela extends JFrame {
 
     public JLabel getJogador1() {
         return this.jogador1;
-    }*/
+    }
 
 }
