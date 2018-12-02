@@ -47,10 +47,12 @@ private int[][] controlePartida = new int[4][2];
 	void entrarNaPartida() throws ParseException {
 		rodada = 1;
 		jogadores[jogadorVez] = getCurrentOpAgentId();
-                Jogador jogadorTela = new Jogador("Jogador"+(jogadorVez+1), "jogador"+(jogadorVez+1), jogadores[jogadorVez]);
-                this.jogadoresTela.add(jogadorTela);
+        Jogador jogadorTela = new Jogador("Jogador"+(jogadorVez+1), "jogador"+(jogadorVez+1), jogadores[jogadorVez]);
+        this.jogadoresTela.add(jogadorTela);
                 
 		if(jogadorVez == 1) {
+			this.tela.jogador1.setText(jogadores[0].getGlobalId());
+			this.tela.jogador2.setText(jogadores[1].getGlobalId());
 			carregaBaralho();
 			distribuirCartas();
                         

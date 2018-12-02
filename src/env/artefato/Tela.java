@@ -38,11 +38,11 @@ import javax.swing.JLabel;
 
 public class Tela extends JFrame {
 
-   private javax.swing.JLabel jogador1;
+   public javax.swing.JLabel jogador1;
     private javax.swing.JLabel carta1Jogador2;
     private javax.swing.JLabel carta2Jogador2;
     private javax.swing.JLabel carta3Jogador2;
-    private javax.swing.JLabel jogador2;
+    public javax.swing.JLabel jogador2;
     private javax.swing.JLabel pontosPartidaJogador1;
     private javax.swing.JLabel cartaVez;
     private javax.swing.JLabel baralhoImg;

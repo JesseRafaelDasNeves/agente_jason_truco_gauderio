@@ -22,8 +22,12 @@ qtdeCarta(0).
 
 jaPediTruco(nao).
 jaPediEnvido(nao).
+jaPediFlor(nao).
+jaPediContraFlor(nao).
 
 outroJogadorPedioTruco(nao).
+outroJogadorPedioEnvido(nao).
+outroJogadorPedioFlor(nao).
 
 todasCartasMao(AUX,RETORNO) :-  (
 	cartaMao(X,Y)
@@ -207,10 +211,10 @@ forcaMao(LISTA_CARTA,R) :- (
 	R = R2
 ).
 
-daParaPedirTruco([],R) :- (
+pedirTruco([],R) :- (
 	R = false
 ).
-daParaPedirTruco(LISTA_CARTAS,R) :- (
+pedirTruco(LISTA_CARTAS,R) :- (
 	codigoVez(V)
 	&
 	forcaMao(LISTA_CARTAS,FM)
@@ -226,17 +230,54 @@ daParaPedirTruco(LISTA_CARTAS,R) :- (
 	)
 ).
 
-/*pedirEnvido() :- (*/
-	/* A soma dos pontos prescisa ser ao menos 20 */
- /* ).*/
- 
-teste(R):-(
- 	R = false
+pontosEnvido([],PONTO_ATUAL,R) :- (
+	R = PONTO_ATUAL
+).
+pontosEnvido([cartaMao(VALOR,NAIPE)|RESTO_CARTAS],PONTO_ATUAL,R) :- (
+	(
+		(VALOR<10 & (AUX = (PONTO_ATUAL + VALOR)))
+		|
+		(AUX = PONTO_ATUAL)
+	)
+	&
+	pontosEnvido(RESTO_CARTAS,AUX,R2)
+	&
+	R = R2
+).
+pontosEnvido([],R) :- (
+	R = 0
+).
+pontosEnvido(LISTA_CARTA,R) :- (
+	pontosEnvido(LISTA_CARTA,0,R2)
+	&
+	R = R2
 ).
 
-teste2(R):-(
- 	R = true
+pedirEnvido(LISTA_CARTAS,R) :- (
+	pontosEnvido(LISTA_CARTAS,QTD_PONTOS)
+	&
+	(
+		(QTD_PONTOS>=20 & R = true)
+		|
+		(R = false)	
+	)
 ).
+
+proxima_carta([CARTA|CAUDA], R) :-
+	R = CARTA
+.
+
+tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
+	proxima_carta(CAUDA,carta(NAIPE_2,NUMERO_2))
+	&
+	(NAIPE_1 == NAIPE_2)
+	&
+	R = true
+	|
+	(NAIPE_1 \== NAIPE_2)
+	&
+	R = false
+.
 
 !inicia.
 
@@ -246,7 +287,7 @@ teste2(R):-(
 .
 
 +suavez : true <-
-	.wait(2000);
+	.wait(1000);
 	
 	?codigoVez(V);
 	.print("#############");
@@ -256,40 +297,87 @@ teste2(R):-(
 	?jaPediTruco(PEDI);
 	.print("Ja pedi truco? R:",PEDI)
 	
-	?jaPediEnvido(P_ENV);
-	.print("Ja pedi envido? R:",P_ENV);
-	
 	?todasCartasMao([],TODAS_CARTAS_MAO);
     .print("Cartas Mão -> ",TODAS_CARTAS_MAO);
+    
+    ?forcaMao(TODAS_CARTAS_MAO,FORCA_MAO);
+    .print("Força Mão -> ",FORCA_MAO);
+    
+    ?jaPediEnvido(P_ENV);
+	?pontosEnvido(TODAS_CARTAS_MAO,QTD_PONTOS)
+	.print("Ja pedi envido? R:",P_ENV, " Pontos = ", QTD_PONTOS);
     
     ?quantidadeManilha(R,QM);
     .print("Qtd manilha -> ",QM);
 	
-	!oQueFazerNestaVez;
+	!oQueFazerNestaVez(TODAS_CARTAS_MAO);
 .
 
-/*+!oQueFazerNestaVez : 
++!oQueFazerNestaVez(LISTA_CARTA) : 
+		codigoVez(VEZ)
+		&
+		VEZ == 1
+		& 
+		jaPediContraFlor(PEDI_FLOR)
+		&
+		PEDI_FLOR == nao
+		&
+		outroJogadorPedioFlor(OUTRO_PEDIO_FLOR)
+		&
+		OUTRO_PEDIO_FLOR = true
+		&
+		tem_mao_flor(LISTA_CARTA,PEDE_ENV) 
+		&
+		PEDE_ENV == true <-
+	-+jaPediContraFlor(sim);
+	.print("Contra Floooooorrrr!!!!!!!!");
+	contraFlor;
+.
+
++!oQueFazerNestaVez(LISTA_CARTA) : 
+		codigoVez(VEZ)
+		&
+		VEZ == 1
+		& 
+		jaPediFlor(PEDI_FLOR)
+		&
+		PEDI_FLOR == nao
+		&
+		outroJogadorPedioFlor(OUTRO_PEDIO_FLOR)
+		&
+		OUTRO_PEDIO_FLOR = false
+		&
+		tem_mao_flor(LISTA_CARTA,PEDE_ENV) 
+		&
+		PEDE_ENV == true <-
+	-+jaPediFlor(sim);
+	.print("Floooooorrrr!!!!!!!!");
+	flor;
+.
+
++!oQueFazerNestaVez(LISTA_CARTA) : 
+		codigoVez(VEZ)
+		&
+		VEZ == 1
+		& 
 		jaPediEnvido(PEDI_ENV)
 		&
 		PEDI_ENV == nao
 		&
-		todasCartasMao([],LISTA_CARTA)
-		&
-		daParaPedirEnvido(LISTA_CARTA,PEDE_ENV) 
+		pedirEnvido(LISTA_CARTA,PEDE_ENV) 
 		&
 		PEDE_ENV == true <-
-	teste
+	-+jaPediEnvido(sim);
+	.print("Enviiiiiiiiiiiido");
+	envido;
 .
-*/
 
-+!oQueFazerNestaVez : 
++!oQueFazerNestaVez(LISTA_CARTA) : 
 		jaPediTruco(PEDI)
 		&
 		PEDI == nao
 		&
-		todasCartasMao([],LISTA_CARTA)
-		&
-		daParaPedirTruco(LISTA_CARTA,PEDE_TRUCO)
+		pedirTruco(LISTA_CARTA,PEDE_TRUCO)
 		&
 		PEDE_TRUCO == true <-
 	
@@ -298,7 +386,7 @@ teste2(R):-(
 	-+jaPediTruco(sim);
 	truco;
 .
-+!oQueFazerNestaVez : not cartaVez(_,_) <-
++!oQueFazerNestaVez(_) : not cartaVez(_,_) <-
 	?maiorCarta(carta(VALOR,NAIPE));
 	.print(">>>> Pegar Maior carta");
 	
@@ -309,7 +397,7 @@ teste2(R):-(
 	.print("Toma carta(", VALOR, ",", NAIPE, ")");
 	jogarCarta(VALOR,NAIPE);
 .	
-+!oQueFazerNestaVez : cartaVez(VALOR_VEZ,NIPE_VEZ) <-
++!oQueFazerNestaVez(_) : cartaVez(VALOR_VEZ,NIPE_VEZ) <-
 	.print("### Tem Carta Vez. é ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
 	
 	?melhorCartaParaJogar(carta(VALOR_VEZ,NIPE_VEZ), carta(MELHOR_VALOR,MELHOR_NAIPE));
@@ -328,7 +416,12 @@ teste2(R):-(
 	.print("Recebida a carta(", NUM, ",", NAIPE, ")");
 	+cartaMao(NUM , NAIPE);
 	-+jaPediTruco(nao);
+	-+outroJogadorPedioTruco(nao);
 	-+jaPediEnvido(nao);
+	-+outroJogadorPedioEnvido(nao);
+	-+outroJogadorPedioFlor(nao);
+	-+jaPediFlor(nao);
+	-+jaPediContraFlor(nao);
 .
 
 +truco : true <-
@@ -363,7 +456,70 @@ teste2(R):-(
 	.print("O jogo tá muito podre");
 	recusar;
 .
-	
+
++envido <-
+	?todasCartasMao([],LISTA_CARTA);
+	!aceitarEnvido(LISTA_CARTA);
+.
+
++!aceitarEnvido(LISTA_CARTA) : pedirEnvido(LISTA_CARTA,PEDE) & PEDE == true <-
+	.print("Aceito envido");
+	aceitar;
+.
++!aceitarEnvido(LISTA_CARTA) : pedirEnvido(LISTA_CARTA,PEDE) & PEDE == false <-
+	.print("Sem envido");
+	recusar;
+.
+
++flor <-
+	?todasCartasMao([],LISTA_CARTA);
+	-+outroJogadorPedioFlor(sim);
+	!aceitarFlor(LISTA_CARTA);
+.
+
++!aceitarFlor(LISTA_CARTA) : tem_mao_flor(LISTA_CARTA,TEM_FLOR) & TEM_FLOR == true <-
+	.print("Aceito flor");
+	aceitar;
+.
++!aceitarFlor(LISTA_CARTA) : tem_mao_flor(LISTA_CARTA,TEM_FLOR) & TEM_FLOR == false <-
+	.print("Não tenho flor");
+	recusar;
+.
+
++contraflor <-
+	?todasCartasMao([],LISTA_CARTA);
+	!aceitarContraFlor(LISTA_CARTA);
+.
+
++!aceitarContraFlor(LISTA_CARTA) : pontosEnvido(LISTA_CARTA,QTD) & QTD > 23 <-
+	.print("Aceito contra flor");
+	aceitar;
+.
++!aceitarContraFlor(LISTA_CARTA) : pontosEnvido(LISTA_CARTA,QTD) & QTD <= 23 <-
+	.print("Não aceito contra flor");
+	recusar;
+.
+
++retruco <-
+	recusar;
+.
+
++vale4 <-
+	recusar;
+.
+
++realenvido <-
+	recusar;
+.
+
++faltaenvido <-
+	recusar;
+.
+
++contraflorresto <-
+	recusar;
+.
+
 +dropAll:true <-
  	.abolish(cartaMao(_,_));
 .
