@@ -21,6 +21,9 @@ forcaCarta(3,_,10).
 qtdeCarta(0).
 
 jaPediTruco(nao).
+jaPediEnvido(nao).
+
+outroJogadorPedioTruco(nao).
 
 todasCartasMao(AUX,RETORNO) :-  (
 	cartaMao(X,Y)
@@ -115,9 +118,7 @@ maiorCarta(RETORNO) :- (
 ).
 
 codigoVez(RETORNO) :- (
-	(
-		qtdeCarta(R)
-	)
+	qtdeCarta(R)
 	&
 	(
 		(
@@ -206,198 +207,177 @@ forcaMao(LISTA_CARTA,R) :- (
 	R = R2
 ).
 
-horaDePedirTruco([],R) :- (
+daParaPedirTruco([],R) :- (
 	R = false
 ).
-horaDePedirTruco(LISTA_CARTAS,R) :- (
+daParaPedirTruco(LISTA_CARTAS,R) :- (
 	codigoVez(V)
-	&
-	.print("codigoVez",V)
-	&
-	quantidadeManilha(LISTA_CARTAS,QM)
-	&
-	.print("quantidadeManilha -> ",QM)
 	&
 	forcaMao(LISTA_CARTAS,FM)
 	&
-	.print("forcaMao -> ",FM)
-	&
 	(
-		(
-			V==3
-			&
-			(
-				(
-					QM == 1
-					&
-					R = true
-				)
-				|
-				(
-					FM >= 9
-					&
-					R = true
-				)
-				|
-				R = false	
-			)
-	 	)
-	 	|
-	 	(
-	 		V==2
-			&
-			(
-				(
-					QM >= 1
-					&
-					R = true
-				)
-				|
-				(
-					FM >= 16
-					&
-					R = true
-				)
-				|
-				R = false	
-			)
-	 	)
-	 	|
-	 	(
-	 		V==1
-			&
-			(
-				(
-					QM >= 2
-					&
-					R = true
-				)
-				|
-				(
-					FM >= 20
-					&
-					R = true
-				)
-				|
-				R = false	
-			)
-	 	)
-	 	|
-	 	R = false
- 	)
+		(V==3 & FM>=9 & R=true)
+		|
+		(V==2 & FM>=16 & R=true)
+		|
+		(V==1 & FM>=20 & R=true)
+		|
+		(R=false)
+	)
 ).
 
 /*pedirEnvido() :- (*/
 	/* A soma dos pontos prescisa ser ao menos 20 */
  /* ).*/
+ 
+teste(R):-(
+ 	R = false
+).
+
+teste2(R):-(
+ 	R = true
+).
 
 !inicia.
 
-+!inicia : true 
-	<-
++!inicia : true <-
 	.wait(1000);
 	entrarNaPartida;
 .
 
-+suavez : true
-	<-
-	.wait(1000);
-	!oQueFazerNestaVez;
-.
-
-+!oQueFazerNestaVez : not cartaVez(_,_) <-
++suavez : true <-
+	.wait(2000);
+	
 	?codigoVez(V);
-	.print("### Vez ",V," ### Minha vez ### Sem Carta Vez");
+	.print("#############");
+	.print("### Minha vez ###");
+	.print("### Vez ",V," ###");
 	
-	?maiorCarta(carta(VALOR,NAIPE));
-	.print(">>>> Maior carta é carta(", VALOR, ",", NAIPE, ")");
+	?jaPediTruco(PEDI);
+	.print("Ja pedi truco? R:",PEDI)
 	
-	?todasCartasMao([],R);
-    .print("Cartas Mão -> ",R);
+	?jaPediEnvido(P_ENV);
+	.print("Ja pedi envido? R:",P_ENV);
+	
+	?todasCartasMao([],TODAS_CARTAS_MAO);
+    .print("Cartas Mão -> ",TODAS_CARTAS_MAO);
     
     ?quantidadeManilha(R,QM);
     .print("Qtd manilha -> ",QM);
+	
+	!oQueFazerNestaVez;
+.
+
+/*+!oQueFazerNestaVez : 
+		jaPediEnvido(PEDI_ENV)
+		&
+		PEDI_ENV == nao
+		&
+		todasCartasMao([],LISTA_CARTA)
+		&
+		daParaPedirEnvido(LISTA_CARTA,PEDE_ENV) 
+		&
+		PEDE_ENV == true <-
+	teste
+.
+*/
+
++!oQueFazerNestaVez : 
+		jaPediTruco(PEDI)
+		&
+		PEDI == nao
+		&
+		todasCartasMao([],LISTA_CARTA)
+		&
+		daParaPedirTruco(LISTA_CARTA,PEDE_TRUCO)
+		&
+		PEDE_TRUCO == true <-
+	
+	.print("Truuuuuucoooo");
+    
+	-+jaPediTruco(sim);
+	truco;
+.
++!oQueFazerNestaVez : not cartaVez(_,_) <-
+	?maiorCarta(carta(VALOR,NAIPE));
+	.print(">>>> Pegar Maior carta");
 	
 	-cartaMao(VALOR, NAIPE);
 	?qtdeCarta(Q);
 	-+qtdeCarta(Q-1);
 	
+	.print("Toma carta(", VALOR, ",", NAIPE, ")");
 	jogarCarta(VALOR,NAIPE);
-.
-+!oQueFazerNestaVez :   jaPediTruco(nao)
-						&
-						todasCartasMao([],LISTA_CARTA)
-						&
-						horaDePedirTruco(LISTA_CARTA,PEDE_TRUCO) <-
-	
-	?codigoVez(V);
-	.print("### Vez ",V," ### Minha vez ###");
-						
-	.print("Truuuuuucoooo");
-	
-	?maiorCarta(carta(VALOR,NAIPE));
-	.print(">>>> Maior carta é carta(", VALOR, ",", NAIPE, ")");
-	
-	?todasCartasMao([],R);
-    .print("Cartas Mão -> ",R);
-    
-	-+jaPediTruco(sim);
-	truco;
 .	
-+!oQueFazerNestaVez : cartaVez(VALOR_VEZ,NIPE_VEZ)
-	<-
-	?codigoVez(V);
-	.print("### Vez ",V," ### Minha vez ### Carta Vez é ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
++!oQueFazerNestaVez : cartaVez(VALOR_VEZ,NIPE_VEZ) <-
+	.print("### Tem Carta Vez. é ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
 	
 	?melhorCartaParaJogar(carta(VALOR_VEZ,NIPE_VEZ), carta(MELHOR_VALOR,MELHOR_NAIPE));
-	.print(">>>> Melhor carta é ", MELHOR_VALOR, " de ", MELHOR_NAIPE);
-    
-    ?todasCartasMao([],R);
-    .print("Cartas Mão -> ",R);
-    
-    ?quantidadeManilha(R,QM);
-    .print("Qtd manilha -> ",QM);
+	.print(">>>> Então a melhor carta é ", MELHOR_VALOR, " de ", MELHOR_NAIPE);
 	
 	-cartaMao(MELHOR_VALOR, MELHOR_NAIPE);
 	?qtdeCarta(Q);
 	-+qtdeCarta(Q-1);
 	
+	.print("Toma carta(", MELHOR_VALOR, ",", MELHOR_NAIPE, ")");
 	jogarCarta(MELHOR_VALOR,MELHOR_NAIPE);
 .
 	
-+receberCarta(NUM, NAIPE) : true
-	<-
++receberCarta(NUM, NAIPE) : true <-
 	-+qtdeCarta(3);
 	.print("Recebida a carta(", NUM, ",", NAIPE, ")");
 	+cartaMao(NUM , NAIPE);
 	-+jaPediTruco(nao);
+	-+jaPediEnvido(nao);
 .
 
-+truco : true
-	<-
-	.print("Aceitou");
-	.
++truco : true <-
+	.print("......");
+	.wait(2000);
+	-+outroJogadorPedioTruco(sim);
+	?todasCartasMao([],LISTA_CARTA);
+	?codigoVez(CODIGO_VEZ);
+	?forcaMao(LISTA_CARTA,FORCA_MAO);
 	
-+dropAll:true
-	<-
- 	.abolish(cartaVez(_,_));
+	.print("Código Vez -> ",CODIGO_VEZ);
+	.print("Força Mao -> ",FORCA_MAO);
+	!oQueFazerSeOutroJogadorPedioTruco(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO);
+.
+
++!oQueFazerSeOutroJogadorPedioTruco(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO) : CODIGO_VEZ = 1 & FORCA_MAO >= 20 <-
+	.print("Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioTruco(CODIGO_VEZ,LISTA_CARTA, FORCA_MAO) : CODIGO_VEZ = 2 & FORCA_MAO >= 16 <-
+	.print("Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioTruco(CODIGO_VEZ,LISTA_CARTA, FORCA_MAO) : CODIGO_VEZ = 3 & FORCA_MAO >= 9 <-
+	.print("Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioTruco(_,_,_) : true <-
+	.print("O jogo tá muito podre");
+	recusar;
+.
+	
++dropAll:true <-
  	.abolish(cartaMao(_,_));
- 	//.wait(500);
- .
+.
 
 
-+cartaVez(NUM, NAIPE) : true
-	<-
++cartaVez(NUM, NAIPE) : true <-
 	.print("cartaVez(", NUM, ",", NAIPE, ")");
-	.
+.
 
--cartaVez(NUM, NAIPE): true
-	<-
+-cartaVez(NUM, NAIPE): true <-
 	.print("removeu carta Vez");
-	.
+.
 
-+dropCartaVez: true
-	<-
++dropCartaVez: true <-
 	.print("removendo carta vez");
  	.abolish(cartaVez(_,_));
  .

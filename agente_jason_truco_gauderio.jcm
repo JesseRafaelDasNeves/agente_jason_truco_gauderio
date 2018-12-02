@@ -5,7 +5,7 @@ mas agente_jason_truco_gauderio {
     	focus: art_mesa
     }
     
-     agent juca : jogador.asl {
+     agent juca : jogador_inteligente.asl {
     	join: mesa
     	focus: art_mesa
     }

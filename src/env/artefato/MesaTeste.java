@@ -107,7 +107,7 @@ private int[][] controlePartida = new int[4][2];
 				//	System.out.println("Chamando remover carta vez");
 					execInternalOp("removerCartaVez");
 				}catch(Exception e) {
-					e.printStackTrace();
+					System.out.println("________________Teste Não tem carta vez");
 				}
 				
 				if(jogador == 2) {
@@ -156,7 +156,12 @@ private int[][] controlePartida = new int[4][2];
 	@INTERNAL_OPERATION void removerCartaVez() {
 		//System.out.println("Removendo carta Vez");
 		this.tela.removeImagemCartaVez();
-		removeObsPropertyByTemplate(this.cartaVez.getName(),this.cartaVez.getValues());	
+		try {
+			removeObsPropertyByTemplate(this.cartaVez.getName(),this.cartaVez.getValues());
+		} catch (Exception e) {
+			System.out.println("____________Não tem carta da vez na mesa");
+		}
+	
 		this.cartaVez = null;
 	}
 	
