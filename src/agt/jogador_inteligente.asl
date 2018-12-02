@@ -26,12 +26,14 @@ jaPediVale4(nao).
 jaPediEnvido(nao).
 jaPediFlor(nao).
 jaPediContraFlor(nao).
+jaPediRealInvido(nao).
 
 outroJogadorPedioTruco(nao).
 outroJogadorPedioRetruco(nao).
 outroJogadorPedioVale4(nao).
 outroJogadorPedioEnvido(nao).
 outroJogadorPedioFlor(nao).
+outroJogadorPedioRealEnvido(nao).
 
 todasCartasMao(AUX,RETORNO) :-  (
 	cartaMao(X,Y)
@@ -305,6 +307,16 @@ pedirEnvido(LISTA_CARTAS,R) :- (
 	)
 ).
 
+pedirRealInvido(LISTA_CARTAS,R) :- (
+	pontosEnvido(LISTA_CARTAS,QTD_PONTOS)
+	&
+	(
+		(QTD_PONTOS>=25 & R = true)
+		|
+		(R = false)	
+	)
+).
+
 proxima_carta([CARTA|CAUDA], R) :-
 	R = CARTA
 .
@@ -409,14 +421,34 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 		&
 		VEZ == 1
 		& 
+		jaPediRealEnvido(PEDI_REAL_ENV)
+		&
+		PEDI_REAL_ENV == nao
+		&
+		pedirRealEnvido(LISTA_CARTA,PEDE_REAL_ENV) 
+		&
+		PEDE_REAL_ENV == true <-
+	-+jaPediEnvido(sim);
+	.print("Real Enviiiiiiiiiiiido");
+	envido;
+.
++!oQueFazerNestaVez(LISTA_CARTA) : 
+		codigoVez(VEZ)
+		&
+		VEZ == 1
+		& 
 		jaPediEnvido(PEDI_ENV)
 		&
 		PEDI_ENV == nao
+		& 
+		jaPediRealEnvido(PEDI_REAL_ENV)
+		&
+		PEDI_REAL_ENV == nao
 		&
 		pedirEnvido(LISTA_CARTA,PEDE_ENV) 
 		&
 		PEDE_ENV == true <-
-	-+jaPediEnvido(sim);
+	-+jaPediRealEnvido(sim);
 	.print("Enviiiiiiiiiiiido");
 	envido;
 .
@@ -513,12 +545,14 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	-+jaPediContraFlor(nao);
 	-+jaPediRetruco(nao);
 	-+jaPediVale4(nao);
+	-+jaPediRealEnvido(nao);
 	
 	-+outroJogadorPedioTruco(nao);
 	-+outroJogadorPedioRetruco(nao);
 	-+outroJogadorPedioEnvido(nao);
 	-+outroJogadorPedioFlor(nao);
 	-+outroJogadorPedioVale4(nao);
+	-+outroJogadorPedioRealEnvido(nao);
 .
 
 +truco : true <-
@@ -662,7 +696,17 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 .
 
 +realenvido <-
+	?todasCartasMao([],LISTA_CARTA);
+	!aceitarRealEnvido(LISTA_CARTA);
+.
+
++!aceitarRealEnvido(LISTA_CARTA) : pedirRealEnvido(LISTA_CARTA,PEDE) & PEDE == true <-
+	.print("Aceito real envido");
 	aceitar;
+.
++!aceitarRealEnvido(LISTA_CARTA) : pedirRealEnvido(LISTA_CARTA,PEDE) & PEDE == false <-
+	.print("Sem real envido");
+	recusar;
 .
 
 +faltaenvido <-
