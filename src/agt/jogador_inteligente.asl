@@ -21,11 +21,15 @@ forcaCarta(3,_,10).
 qtdeCarta(0).
 
 jaPediTruco(nao).
+jaPediRetruco(nao).
+jaPediVale4(nao).
 jaPediEnvido(nao).
 jaPediFlor(nao).
 jaPediContraFlor(nao).
 
 outroJogadorPedioTruco(nao).
+outroJogadorPedioRetruco(nao).
+outroJogadorPedioVale4(nao).
 outroJogadorPedioEnvido(nao).
 outroJogadorPedioFlor(nao).
 
@@ -230,6 +234,44 @@ pedirTruco(LISTA_CARTAS,R) :- (
 	)
 ).
 
+pedirRetruco([],R) :- (
+	R=false
+).
+pedirRetruco(LISTA_CARTAS,R) :- (
+	codigoVez(V)
+	&
+	forcaMao(LISTA_CARTAS,FM)
+	&
+	(
+		(V==3 & FM>=11 & R=true)
+		|
+		(V==2 & FM>=18 & R=true)
+		|
+		(V==1 & FM>=22 & R=true)
+		|
+		(R=false)
+	)
+).
+
+pedirVale4([],R) :- (
+	R=false
+).
+pedirVale4(LISTA_CARTAS,R) :- (
+	codigoVez(V)
+	&
+	forcaMao(LISTA_CARTAS,FM)
+	&
+	(
+		(V==3 & FM>=13 & R=true)
+		|
+		(V==2 & FM>=20 & R=true)
+		|
+		(V==1 & FM>=24 & R=true)
+		|
+		(R=false)
+	)
+).
+
 pontosEnvido([],PONTO_ATUAL,R) :- (
 	R = PONTO_ATUAL
 ).
@@ -295,7 +337,16 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	.print("### Vez ",V," ###");
 	
 	?jaPediTruco(PEDI);
-	.print("Ja pedi truco? R:",PEDI)
+	.print("Ja pedi truco? R:",PEDI);
+	
+	?outroJogadorPedioTruco(OUTRO_TRUCO);
+	.print("Outro pedio truco? R:",OUTRO_TRUCO);
+	
+	?jaPediRetruco(PEDI_R);
+	.print("Ja pedi retruco? R:",PEDI_R);
+	
+	?jaPediVale4(PEDI_V4);
+	.print("Ja pedi vale 4? R:",PEDI_V4);
 	
 	?todasCartasMao([],TODAS_CARTAS_MAO);
     .print("Cartas Mão -> ",TODAS_CARTAS_MAO);
@@ -333,7 +384,6 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	.print("Contra Floooooorrrr!!!!!!!!");
 	contraFlor;
 .
-
 +!oQueFazerNestaVez(LISTA_CARTA) : 
 		codigoVez(VEZ)
 		&
@@ -354,7 +404,6 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	.print("Floooooorrrr!!!!!!!!");
 	flor;
 .
-
 +!oQueFazerNestaVez(LISTA_CARTA) : 
 		codigoVez(VEZ)
 		&
@@ -371,7 +420,6 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	.print("Enviiiiiiiiiiiido");
 	envido;
 .
-
 +!oQueFazerNestaVez(LISTA_CARTA) : 
 		jaPediTruco(PEDI)
 		&
@@ -379,12 +427,55 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 		&
 		pedirTruco(LISTA_CARTA,PEDE_TRUCO)
 		&
-		PEDE_TRUCO == true <-
-	
+		PEDE_TRUCO == true
+		&
+		outroJogadorPedioTruco(OUTRO_PEDIO_TRUCO)
+		&
+		OUTRO_PEDIO_TRUCO == nao <-
 	.print("Truuuuuucoooo");
     
 	-+jaPediTruco(sim);
 	truco;
+.
++!oQueFazerNestaVez(LISTA_CARTA) :
+		jaPediRetruco(PEDI_RETRUCO)
+		&
+		PEDI_RETRUCO==nao
+		&
+		outroJogadorPedioTruco(OUTRO_PEDIO_TRUCO)
+		&
+		OUTRO_PEDIO_TRUCO==sim
+		&
+		outroJogadorPedioRetruco(OUTRO_PEDIO_RETRUCO)
+		&
+		OUTRO_PEDIO_RETRUCO==nao
+		&
+		pedirRetruco(LISTA_CARTA,PEDE_RETRUCO)
+		&
+		PEDE_RETRUCO==true <-
+	-+jaPediRetruco(sim);
+	.print("Retruuuucoooooo!!!!!!!!");
+	retruco;
+.
++!oQueFazerNestaVez(LISTA_CARTA) :
+		jaPediVale4(PEDI_VALE_4)
+		&
+		PEDI_VALE_4 == nao
+		&
+		outroJogadorPedioRetruco(OUTRO_PEDIO_RETRUCO)
+		&
+		OUTRO_PEDIO_RETRUCO == sim
+		&
+		outroJogadorPedioVale4(OUTRO_PEDIO_VALE_4)
+		&
+		OUTRO_PEDIO_VALE_4 == nao
+		&
+		pedirVale4(LISTA_CARTA,PEDE_VALE_4)
+		&
+		PEDE_VALE_4 == true <-
+	-+jaPediVale4(sim);
+	.print("Vale quaaaatrooo!!!!!!!!");
+	valeQuatro;
 .
 +!oQueFazerNestaVez(_) : not cartaVez(_,_) <-
 	?maiorCarta(carta(VALOR,NAIPE));
@@ -415,13 +506,19 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	-+qtdeCarta(3);
 	.print("Recebida a carta(", NUM, ",", NAIPE, ")");
 	+cartaMao(NUM , NAIPE);
+	
 	-+jaPediTruco(nao);
-	-+outroJogadorPedioTruco(nao);
 	-+jaPediEnvido(nao);
-	-+outroJogadorPedioEnvido(nao);
-	-+outroJogadorPedioFlor(nao);
 	-+jaPediFlor(nao);
 	-+jaPediContraFlor(nao);
+	-+jaPediRetruco(nao);
+	-+jaPediVale4(nao);
+	
+	-+outroJogadorPedioTruco(nao);
+	-+outroJogadorPedioRetruco(nao);
+	-+outroJogadorPedioEnvido(nao);
+	-+outroJogadorPedioFlor(nao);
+	-+outroJogadorPedioVale4(nao);
 .
 
 +truco : true <-
@@ -438,22 +535,22 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 .
 
 +!oQueFazerSeOutroJogadorPedioTruco(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO) : CODIGO_VEZ = 1 & FORCA_MAO >= 20 <-
-	.print("Cai essas cartas de merda");
+	.print("Aceito truco, Cai essas cartas de merda");
 	aceitar;
 .
 
 +!oQueFazerSeOutroJogadorPedioTruco(CODIGO_VEZ,LISTA_CARTA, FORCA_MAO) : CODIGO_VEZ = 2 & FORCA_MAO >= 16 <-
-	.print("Cai essas cartas de merda");
+	.print("Aceito truco, Cai essas cartas de merda");
 	aceitar;
 .
 
 +!oQueFazerSeOutroJogadorPedioTruco(CODIGO_VEZ,LISTA_CARTA, FORCA_MAO) : CODIGO_VEZ = 3 & FORCA_MAO >= 9 <-
-	.print("Cai essas cartas de merda");
+	.print("Aceito truco, Cai essas cartas de merda");
 	aceitar;
 .
 
 +!oQueFazerSeOutroJogadorPedioTruco(_,_,_) : true <-
-	.print("O jogo tá muito podre");
+	.print("Não aceito truco, O jogo tá muito podre");
 	recusar;
 .
 
@@ -501,23 +598,79 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 .
 
 +retruco <-
+	-+outroJogadorPedioRetruco(sim);
+	
+	?todasCartasMao([],LISTA_CARTA);
+	?codigoVez(CODIGO_VEZ);
+	?forcaMao(LISTA_CARTA,FORCA_MAO);
+	
+	.print("Código Vez -> ",CODIGO_VEZ);
+	.print("Força Mao -> ",FORCA_MAO);
+	!oQueFazerSeOutroJogadorPedioRetruco(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO);
+.
+
++!oQueFazerSeOutroJogadorPedioRetruco(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO) : CODIGO_VEZ = 1 & FORCA_MAO >= 22 <-
+	.print("Aceito retruco, Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioRetruco(CODIGO_VEZ,LISTA_CARTA, FORCA_MAO) : CODIGO_VEZ = 2 & FORCA_MAO >= 18 <-
+	.print("Aceito retruco, Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioRetruco(CODIGO_VEZ,LISTA_CARTA, FORCA_MAO) : CODIGO_VEZ = 3 & FORCA_MAO >= 11 <-
+	.print("Aceito retruco, Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioRetruco(_,_,_) : true <-
+	.print("O jogo tá mais ou menos, mas não vou");
 	recusar;
 .
 
 +vale4 <-
+	-+outroJogadorPedioVale4(sim);
+	
+	?todasCartasMao([],LISTA_CARTA);
+	?codigoVez(CODIGO_VEZ);
+	?forcaMao(LISTA_CARTA,FORCA_MAO);
+	
+	.print("Código Vez -> ",CODIGO_VEZ);
+	.print("Força Mao -> ",FORCA_MAO);
+	!oQueFazerSeOutroJogadorPedioVale4(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO);
+.
+
++!oQueFazerSeOutroJogadorPedioVale4(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO) : CODIGO_VEZ = 1 & FORCA_MAO >= 24 <-
+	.print("Aceito vale 4, Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioVale4(CODIGO_VEZ,LISTA_CARTA, FORCA_MAO) : CODIGO_VEZ = 2 & FORCA_MAO >= 20 <-
+	.print("Aceito vale 4, Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioVale4(CODIGO_VEZ,LISTA_CARTA, FORCA_MAO) : CODIGO_VEZ = 3 & FORCA_MAO >= 13 <-
+	.print("Aceito vale 4, Cai essas cartas de merda");
+	aceitar;
+.
+
++!oQueFazerSeOutroJogadorPedioVale4(_,_,_) : true <-
+	.print("O jogo tá razoável, mas não vou");
 	recusar;
 .
 
 +realenvido <-
-	recusar;
+	aceitar;
 .
 
 +faltaenvido <-
-	recusar;
+	aceitar;
 .
 
 +contraflorresto <-
-	recusar;
+	aceitar;
 .
 
 +dropAll:true <-
