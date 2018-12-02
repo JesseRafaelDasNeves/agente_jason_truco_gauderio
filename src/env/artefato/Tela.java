@@ -43,21 +43,21 @@ public class Tela extends JFrame {
     private javax.swing.JLabel carta2Jogador2;
     private javax.swing.JLabel carta3Jogador2;
     private javax.swing.JLabel jogador2;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel pontosPartidaJogador1;
     private javax.swing.JLabel cartaVez;
     private javax.swing.JLabel baralhoImg;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel pontosPartidaJogador2;
     private javax.swing.JLabel carta1Jogador1;
     private javax.swing.JLabel carta2Jogador1;
     private javax.swing.JLabel carta3Jogador1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JScrollPane jScrollPane1;
+//    private javax.swing.JPanel jPanel3;
+//    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+//    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField textPontosPartidaJogador1;
+    private javax.swing.JTextField textPontosPartidaJogador2;
 
     private String EXTENSAO_IMG = ".png";
 
@@ -71,6 +71,12 @@ public class Tela extends JFrame {
         this.setVisible(true);
     }
 
+    public void atualizaPontosPartida(int pontosJogador1,int pontosJogador2) {
+    this.textPontosPartidaJogador1.setText(pontosJogador1+"");
+    this.textPontosPartidaJogador2.setText(pontosJogador2+"");
+    this.atualizaTela();
+    }
+    
     public void addImagemCarta(Jogador jogador, String carta, int pos) {
      	System.out.println(carta);
         if (jogador.getAvatar().equalsIgnoreCase("jogador1")) {
@@ -204,13 +210,13 @@ public class Tela extends JFrame {
         carta3Jogador2 = new javax.swing.JLabel();
 
         jPanel2 = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jPanel3 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        textPontosPartidaJogador1 = new javax.swing.JTextField();
+        pontosPartidaJogador1 = new javax.swing.JLabel();
+        pontosPartidaJogador2 = new javax.swing.JLabel();
+        textPontosPartidaJogador2 = new javax.swing.JTextField();
+//        jPanel3 = new javax.swing.JPanel();
+//        jScrollPane1 = new javax.swing.JScrollPane();
+//        jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setAlwaysOnTop(true);
@@ -283,59 +289,72 @@ public class Tela extends JFrame {
         jPanel1.setBackground(new Color(63, 122, 77));
         jTabbedPane1.addTab("Jogadores", jPanel1);
 
-        jLabel3.setText("Placar");
+        pontosPartidaJogador1.setText("Partidas Vencidas -> JOGADOR1: ");
 
-        jLabel6.setText("Status da Rodada");
+        pontosPartidaJogador2.setText("Partidas Vencidas -> JOGADOR2: ");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup().addContainerGap()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel2Layout.createSequentialGroup().addComponent(jLabel3)
+                                .addGroup(jPanel2Layout.createSequentialGroup().addComponent(pontosPartidaJogador1)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jTextField1))
+                                        .addComponent(textPontosPartidaJogador1))
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-                                        jPanel2Layout.createSequentialGroup().addComponent(jLabel6)
+                                        jPanel2Layout.createSequentialGroup().addComponent(pontosPartidaJogador2)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 645,
+                                                .addComponent(textPontosPartidaJogador2, javax.swing.GroupLayout.DEFAULT_SIZE, 645,
                                                         Short.MAX_VALUE)))
                         .addContainerGap()));
         jPanel2Layout.setVerticalGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup().addGap(23, 23, 23)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                .addComponent(textPontosPartidaJogador1, javax.swing.GroupLayout.PREFERRED_SIZE,
                                         javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel3))
+                                .addComponent(pontosPartidaJogador1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                .addComponent(textPontosPartidaJogador2, javax.swing.GroupLayout.PREFERRED_SIZE,
                                         javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel6))
+                                .addComponent(pontosPartidaJogador2))
+                        .addContainerGap(391, Short.MAX_VALUE)));
+        
+        jPanel2Layout.setVerticalGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createSequentialGroup().addGap(23, 23, 23)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(textPontosPartidaJogador1, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(pontosPartidaJogador1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(textPontosPartidaJogador2, javax.swing.GroupLayout.PREFERRED_SIZE,
+                                        javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(pontosPartidaJogador2))
                         .addContainerGap(391, Short.MAX_VALUE)));
 
         jTabbedPane1.addTab("Geral Jogo", jPanel2);
 
-        jTable1.setModel(
-                new javax.swing.table.DefaultTableModel(
-                        new Object[][]{{null, null, null, null}, {null, null, null, null},
-                        {null, null, null, null}, {null, null, null, null}},
-                        new String[]{"Title 1", "Title 2", "Title 3", "Title 4"}));
-        jScrollPane1.setViewportView(jTable1);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel3Layout.createSequentialGroup().addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 759, Short.MAX_VALUE)
-                        .addContainerGap()));
-        jPanel3Layout.setVerticalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel3Layout
-                        .createSequentialGroup().addContainerGap().addComponent(jScrollPane1,
-                                javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(67, Short.MAX_VALUE)));
-
-        jTabbedPane1.addTab("Partida", jPanel3);
+//        jTable1.setModel(
+//                new javax.swing.table.DefaultTableModel(
+//                        new Object[][]{{null, null, null, null}, {null, null, null, null},
+//                        {null, null, null, null}, {null, null, null, null}},
+//                        new String[]{"Title 1", "Title 2", "Title 3", "Title 4"}));
+//        jScrollPane1.setViewportView(jTable1);
+//
+//        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+//        jPanel3.setLayout(jPanel3Layout);
+//        jPanel3Layout.setHorizontalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//                .addGroup(jPanel3Layout.createSequentialGroup().addContainerGap()
+//                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 759, Short.MAX_VALUE)
+//                        .addContainerGap()));
+//        jPanel3Layout.setVerticalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//                .addGroup(jPanel3Layout
+//                        .createSequentialGroup().addContainerGap().addComponent(jScrollPane1,
+//                                javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE)
+//                        .addContainerGap(67, Short.MAX_VALUE)));
+//
+//        jTabbedPane1.addTab("Partida", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
