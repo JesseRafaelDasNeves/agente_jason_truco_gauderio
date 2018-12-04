@@ -34,7 +34,7 @@ outroJogadorPedioVale4(nao).
 outroJogadorPedioEnvido(nao).
 outroJogadorPedioFlor(nao).
 outroJogadorPedioRealEnvido(nao).
-
+//retorna a lista das cartas da mao
 todasCartasMao(AUX,RETORNO) :-  (
 	cartaMao(X,Y)
 	&
@@ -75,14 +75,14 @@ melhorCartaParaJogar(carta(VALOR,NAIPE),MINHA_JOGADA) :- (
 		)
 	)
 	|
-	/* Ou se não tiver pega a menor carta */
+	/* Ou se nï¿½o tiver pega a menor carta */
 	(
 		menorCarta(RETORNO)
 		&
 		MINHA_JOGADA = RETORNO	
 	) 
 ).
-
+//retorna a menor carta da mao
 menorCarta(RETORNO) :- (
 	cartaMao(MENOR_VALOR,MENOR_NAIPE)
 	&
@@ -104,7 +104,7 @@ menorCarta(RETORNO) :- (
 		MENOR_FORCA > FORCA_TEMP
 	)
 ).
-
+//retorna a maior carta
 maiorCarta(RETORNO) :- (
 	cartaMao(MAIOR_VALOR,MAIOR_NAIPE)
 	&
@@ -126,7 +126,7 @@ maiorCarta(RETORNO) :- (
 		MAIOR_FORCA < FORCA_TEMP
 	)	
 ).
-
+//retorna o momento que ele esta na roda. se tem duas cartas  quer dizer que Ã© a segunda rodada
 codigoVez(RETORNO) :- (
 	qtdeCarta(R)
 	&
@@ -150,7 +150,7 @@ codigoVez(RETORNO) :- (
 		)
 	)
 ).
-
+//verifica se a carta Ã© manilha
 cartaManilha(cartaMao(VALOR,NAIPE), R) :- (
 	(
 		not manilha(VALOR,NAIPE)
@@ -164,7 +164,7 @@ cartaManilha(cartaMao(VALOR,NAIPE), R) :- (
 		R = true
 	)
 ).
-
+//retorna a quantidade de manilhas, passando a lista de cartas
 quantidadeManilha([],R) :- (
 	R = 0
 ).
@@ -195,7 +195,7 @@ quantidadeManilha(LISTA_CARTA,R) :- (
 	&
 	R = R2
 ).
-
+//soma as forcas da cartas na mao e retorna a soma
 forcaMao([],FORCA_ATUAL,R) :- (
 	R = FORCA_ATUAL
 ).
@@ -216,7 +216,7 @@ forcaMao(LISTA_CARTA,R) :- (
 	&
 	R = R2
 ).
-
+//de acordo com a soma das forcas das cartas da mao e o momento da rodada verifica e pede truco ou nao 
 pedirTruco([],R) :- (
 	R = false
 ).
@@ -273,7 +273,7 @@ pedirVale4(LISTA_CARTAS,R) :- (
 		(R=false)
 	)
 ).
-
+//ele pega todas as cartas que o valor Ã© menor que 10 e soma os valores para ter a soma dos pontos envido, contudo nao calcula os pontos bonus por naipes iguais
 pontosEnvido([],PONTO_ATUAL,R) :- (
 	R = PONTO_ATUAL
 ).
@@ -320,7 +320,7 @@ pedirRealInvido(LISTA_CARTAS,R) :- (
 proxima_carta([CARTA|CAUDA], R) :-
 	R = CARTA
 .
-
+//verifica se a mao do jogador possui 3 cartas do mesmo naipe para pedir flor
 tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	proxima_carta(CAUDA,carta(NAIPE_2,NUMERO_2))
 	&
@@ -361,10 +361,10 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	.print("Ja pedi vale 4? R:",PEDI_V4);
 	
 	?todasCartasMao([],TODAS_CARTAS_MAO);
-    .print("Cartas Mão -> ",TODAS_CARTAS_MAO);
+    .print("Cartas Mï¿½o -> ",TODAS_CARTAS_MAO);
     
     ?forcaMao(TODAS_CARTAS_MAO,FORCA_MAO);
-    .print("Força Mão -> ",FORCA_MAO);
+    .print("Forï¿½a Mï¿½o -> ",FORCA_MAO);
     
     ?jaPediEnvido(P_ENV);
 	?pontosEnvido(TODAS_CARTAS_MAO,QTD_PONTOS)
@@ -521,10 +521,10 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	jogarCarta(VALOR,NAIPE);
 .	
 +!oQueFazerNestaVez(_) : cartaVez(VALOR_VEZ,NIPE_VEZ) <-
-	.print("### Tem Carta Vez. é ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
+	.print("### Tem Carta Vez. ï¿½ ", VALOR_VEZ, " de ", NIPE_VEZ,"###");
 	
 	?melhorCartaParaJogar(carta(VALOR_VEZ,NIPE_VEZ), carta(MELHOR_VALOR,MELHOR_NAIPE));
-	.print(">>>> Então a melhor carta é ", MELHOR_VALOR, " de ", MELHOR_NAIPE);
+	.print(">>>> Entï¿½o a melhor carta ï¿½ ", MELHOR_VALOR, " de ", MELHOR_NAIPE);
 	
 	-cartaMao(MELHOR_VALOR, MELHOR_NAIPE);
 	?qtdeCarta(Q);
@@ -563,8 +563,8 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	?codigoVez(CODIGO_VEZ);
 	?forcaMao(LISTA_CARTA,FORCA_MAO);
 	
-	.print("Código Vez -> ",CODIGO_VEZ);
-	.print("Força Mao -> ",FORCA_MAO);
+	.print("Cï¿½digo Vez -> ",CODIGO_VEZ);
+	.print("Forï¿½a Mao -> ",FORCA_MAO);
 	!oQueFazerSeOutroJogadorPedioTruco(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO);
 .
 
@@ -584,7 +584,7 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 .
 
 +!oQueFazerSeOutroJogadorPedioTruco(_,_,_) : true <-
-	.print("Não aceito truco, O jogo tá muito podre");
+	.print("Nï¿½o aceito truco, O jogo tï¿½ muito podre");
 	recusar;
 .
 
@@ -613,7 +613,7 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	aceitar;
 .
 +!aceitarFlor(LISTA_CARTA) : tem_mao_flor(LISTA_CARTA,TEM_FLOR) & TEM_FLOR == false <-
-	.print("Não tenho flor");
+	.print("Nï¿½o tenho flor");
 	recusar;
 .
 
@@ -627,7 +627,7 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	aceitar;
 .
 +!aceitarContraFlor(LISTA_CARTA) : pontosEnvido(LISTA_CARTA,QTD) & QTD <= 23 <-
-	.print("Não aceito contra flor");
+	.print("Nï¿½o aceito contra flor");
 	recusar;
 .
 
@@ -638,8 +638,8 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	?codigoVez(CODIGO_VEZ);
 	?forcaMao(LISTA_CARTA,FORCA_MAO);
 	
-	.print("Código Vez -> ",CODIGO_VEZ);
-	.print("Força Mao -> ",FORCA_MAO);
+	.print("Cï¿½digo Vez -> ",CODIGO_VEZ);
+	.print("Forï¿½a Mao -> ",FORCA_MAO);
 	!oQueFazerSeOutroJogadorPedioRetruco(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO);
 .
 
@@ -659,7 +659,7 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 .
 
 +!oQueFazerSeOutroJogadorPedioRetruco(_,_,_) : true <-
-	.print("O jogo tá mais ou menos, mas não vou");
+	.print("O jogo tï¿½ mais ou menos, mas nï¿½o vou");
 	recusar;
 .
 
@@ -670,8 +670,8 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 	?codigoVez(CODIGO_VEZ);
 	?forcaMao(LISTA_CARTA,FORCA_MAO);
 	
-	.print("Código Vez -> ",CODIGO_VEZ);
-	.print("Força Mao -> ",FORCA_MAO);
+	.print("Cï¿½digo Vez -> ",CODIGO_VEZ);
+	.print("Forï¿½a Mao -> ",FORCA_MAO);
 	!oQueFazerSeOutroJogadorPedioVale4(CODIGO_VEZ,LISTA_CARTA,FORCA_MAO);
 .
 
@@ -691,7 +691,7 @@ tem_mao_flor([carta(NAIPE_1,NUMERO_2)|CAUDA],R) :-
 .
 
 +!oQueFazerSeOutroJogadorPedioVale4(_,_,_) : true <-
-	.print("O jogo tá razoável, mas não vou");
+	.print("O jogo tï¿½ razoï¿½vel, mas nï¿½o vou");
 	recusar;
 .
 
